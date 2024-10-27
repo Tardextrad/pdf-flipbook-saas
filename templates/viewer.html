@@ -28,11 +28,22 @@
         <button id="zoomOut" class="btn btn-secondary">Zoom Out</button>
     </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
+<!-- jQuery must be loaded first -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
+
+<!-- Primary turn.js source -->
+<script src="https://raw.githubusercontent.com/blasten/turn.js/master/turn.js"></script>
+
+<!-- Fallback turn.js source -->
+<script>
+if (typeof $.fn.turn === 'undefined') {
+    document.write('<script src="https://raw.githack.com/blasten/turn.js/master/turn.js"><\/script>');
+}
+</script>
+
+<!-- Custom viewer script -->
 <script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
 {% endblock %}
