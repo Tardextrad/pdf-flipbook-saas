@@ -3,15 +3,24 @@ from datetime import datetime, timedelta
 from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from encryption import encryptor
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email_encrypted = db.Column(db.Text, unique=True, nullable=False)
     password_hash = db.Column(db.String(256))
     refresh_token = db.Column(db.String(256), unique=True)
     refresh_token_expiry = db.Column(db.DateTime)
     flipbooks = db.relationship('Flipbook', backref='owner', lazy=True)
+
+    @property
+    def email(self):
+        return encryptor.decrypt(self.email_encrypted)
+
+    @email.setter
+    def email(self, value):
+        self.email_encrypted = encryptor.encrypt(value)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -35,7 +44,7 @@ class User(UserMixin, db.Model):
 
 class Flipbook(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(128), nullable=False)
+    title_encrypted = db.Column(db.Text, nullable=False)
     filename = db.Column(db.String(256), nullable=False)
     unique_id = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -43,9 +52,25 @@ class Flipbook(db.Model):
     page_count = db.Column(db.Integer, nullable=False, default=0)
     views = db.relationship('PageView', backref='flipbook', lazy=True)
 
+    @property
+    def title(self):
+        return encryptor.decrypt(self.title_encrypted)
+
+    @title.setter
+    def title(self, value):
+        self.title_encrypted = encryptor.encrypt(value)
+
 class PageView(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     flipbook_id = db.Column(db.Integer, db.ForeignKey('flipbook.id'), nullable=False)
     viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
-    ip_address = db.Column(db.String(45))  # IPv6 compatibility
+    ip_address_encrypted = db.Column(db.Text)
     page_number = db.Column(db.Integer)
+
+    @property
+    def ip_address(self):
+        return encryptor.decrypt(self.ip_address_encrypted) if self.ip_address_encrypted else None
+
+    @ip_address.setter
+    def ip_address(self, value):
+        self.ip_address_encrypted = encryptor.encrypt(value) if value else None
