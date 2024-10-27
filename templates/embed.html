@@ -1,44 +1,32 @@
 <!DOCTYPE html>
-<html data-bs-theme="dark">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ flipbook.title }}</title>
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
-        :root {
-            --main-bg: #1B1E2B;
-            --accent-purple: #A66CFF;
-            --accent-cyan: #41E8DF;
-        }
-        
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: var(--main-bg);
         }
-        
         .viewer-container {
             padding: 0;
         }
-        
-        .btn-gradient {
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
-            border: none;
-            color: white;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(166, 108, 255, 0.3);
-        }
+        {{ flipbook.custom_css | safe if flipbook.custom_css }}
     </style>
 </head>
-<body>
+<body style="background-color: {{ flipbook.background_color }}">
     <div class="viewer-container">
+        {% if flipbook.logo_filename %}
+        <div class="logo-container mb-3">
+            <img src="{{ url_for('static', filename='uploads/' + flipbook.logo_filename) }}" alt="Logo" class="flipbook-logo">
+        </div>
+        {% endif %}
+        
         <div id="flipbook" class="flipbook">
             {% for i in range(1, 100) %}
             {% set image_path = url_for('static', filename='uploads/' + flipbook.filename.rsplit('.', 1)[0] + '/page_' + i|string + '.jpg') %}
@@ -48,10 +36,10 @@
             {% endfor %}
         </div>
         <div class="controls">
-            <button id="prev" class="btn btn-gradient"><i class="bi bi-chevron-left"></i></button>
-            <button id="next" class="btn btn-gradient"><i class="bi bi-chevron-right"></i></button>
-            <button id="zoomIn" class="btn btn-gradient"><i class="bi bi-zoom-in"></i></button>
-            <button id="zoomOut" class="btn btn-gradient"><i class="bi bi-zoom-out"></i></button>
+            <button id="prev" class="btn btn-secondary"><i class="bi bi-chevron-left"></i></button>
+            <button id="next" class="btn btn-secondary"><i class="bi bi-chevron-right"></i></button>
+            <button id="zoomIn" class="btn btn-secondary"><i class="bi bi-zoom-in"></i></button>
+            <button id="zoomOut" class="btn btn-secondary"><i class="bi bi-zoom-out"></i></button>
         </div>
     </div>
 

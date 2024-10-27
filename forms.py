@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, FileField, SubmitField
-from wtforms.validators import DataRequired, Email, Length, EqualTo
+from wtforms import StringField, PasswordField, FileField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired, Email, Length, EqualTo, Optional
+from flask_wtf.file import FileAllowed
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -17,4 +18,7 @@ class RegisterForm(FlaskForm):
 class UploadForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     pdf_file = FileField('PDF File', validators=[DataRequired()])
+    background_color = StringField('Background Color', default='#ffffff')
+    logo = FileField('Logo (Optional)', validators=[Optional(), FileAllowed(['png', 'jpg', 'jpeg'], 'Images only!')])
+    custom_css = TextAreaField('Custom CSS (Optional)', validators=[Optional()])
     submit = SubmitField('Upload')
