@@ -2,35 +2,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const flipbook = document.getElementById('flipbook');
     let currentZoom = 1;
 
-    $(flipbook).turn({
-        width: 800,
-        height: 600,
-        autoCenter: true,
-        gradients: true,
-        acceleration: true
-    });
-
-    // Track page changes
-    $(flipbook).bind('turned', function(event, page) {
-        fetch(`/track_page/${window.location.pathname.split('/').pop()}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                page_number: page
-            })
+    // Initialize turn.js with error handling
+    try {
+        $(flipbook).turn({
+            width: 800,
+            height: 600,
+            autoCenter: true,
+            gradients: true,
+            acceleration: true
         });
-    });
 
-    // Navigation controls
-    document.getElementById('prev').addEventListener('click', function() {
-        $(flipbook).turn('previous');
-    });
+        // Track page changes
+        $(flipbook).bind('turned', function(event, page) {
+            fetch(`/track_page/${window.location.pathname.split('/').pop()}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    page_number: page
+                })
+            });
+        });
 
-    document.getElementById('next').addEventListener('click', function() {
-        $(flipbook).turn('next');
-    });
+        // Navigation controls
+        document.getElementById('prev').addEventListener('click', function() {
+            $(flipbook).turn('previous');
+        });
+
+        document.getElementById('next').addEventListener('click', function() {
+            $(flipbook).turn('next');
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                $(flipbook).turn('previous');
+            } else if (e.key === 'ArrowRight') {
+                $(flipbook).turn('next');
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing turn.js:', error);
+        // Fallback to basic viewer if turn.js fails
+        document.querySelector('.controls').style.display = 'none';
+        showToast('Error loading flipbook viewer. Please try refreshing the page.', 'danger');
+    }
 
     // Zoom controls
     document.getElementById('zoomIn').addEventListener('click', function() {
@@ -48,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Sharing functionality with improved clipboard API
-    document.getElementById('copyShareLink').addEventListener('click', async function() {
+    document.getElementById('copyShareLink')?.addEventListener('click', async function() {
         const shareUrl = this.getAttribute('data-share-url');
         try {
             await navigator.clipboard.writeText(shareUrl);
@@ -58,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('copyEmbedCode').addEventListener('click', async function() {
+    document.getElementById('copyEmbedCode')?.addEventListener('click', async function() {
         const embedCode = document.getElementById('embedCode');
         try {
             await navigator.clipboard.writeText(embedCode.value);
@@ -98,13 +115,4 @@ document.addEventListener('DOMContentLoaded', function() {
             toastEl.remove();
         });
     }
-
-    // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowLeft') {
-            $(flipbook).turn('previous');
-        } else if (e.key === 'ArrowRight') {
-            $(flipbook).turn('next');
-        }
-    });
 });

@@ -71,8 +71,8 @@
 <!-- jQuery must be loaded first -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Primary turn.js source -->
-<script src="https://raw.githubusercontent.com/blasten/turn.js/master/turn.js"></script>
+<!-- Local turn.js -->
+<script src="{{ url_for('static', filename='js/turn.min.js') }}"></script>
 
 <!-- Custom viewer script -->
 <script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
