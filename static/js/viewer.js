@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const flipbook = document.getElementById('flipbook');
-    let currentZoom = 0.8;
-    const MIN_ZOOM = 0.5;
-    const MAX_ZOOM = 2.0;
-    const ZOOM_STEP = 0.1;
+    let currentZoom = 1;
 
     // Initialize turn.js with error handling
     try {
@@ -14,9 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
             gradients: true,
             acceleration: true
         });
-
-        // Set initial zoom
-        updateZoom();
 
         // Track page changes
         $(flipbook).bind('turned', function(event, page) {
@@ -50,37 +44,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     } catch (error) {
         console.error('Error initializing turn.js:', error);
+        // Fallback to basic viewer if turn.js fails
         document.querySelector('.controls').style.display = 'none';
         showToast('Error loading flipbook viewer. Please try refreshing the page.', 'danger');
     }
 
-    // Zoom controls with limits and smooth transitions
+    // Zoom controls
     document.getElementById('zoomIn').addEventListener('click', function() {
-        if (currentZoom < MAX_ZOOM) {
-            currentZoom = Math.min(MAX_ZOOM, currentZoom + ZOOM_STEP);
-            updateZoom();
+        if (currentZoom < 2) {
+            currentZoom += 0.2;
+            flipbook.style.transform = `scale(${currentZoom})`;
         }
     });
 
     document.getElementById('zoomOut').addEventListener('click', function() {
-        if (currentZoom > MIN_ZOOM) {
-            currentZoom = Math.max(MIN_ZOOM, currentZoom - ZOOM_STEP);
-            updateZoom();
+        if (currentZoom > 0.5) {
+            currentZoom -= 0.2;
+            flipbook.style.transform = `scale(${currentZoom})`;
         }
     });
 
-    function updateZoom() {
-        flipbook.style.transform = `scale(${currentZoom})`;
-        // Center the content after zoom
-        const container = document.querySelector('.viewer-container');
-        container.scrollTo({
-            left: (container.scrollWidth - container.clientWidth) / 2,
-            top: (container.scrollHeight - container.clientHeight) / 2,
-            behavior: 'smooth'
-        });
-    }
-
-    // Sharing functionality
+    // Sharing functionality with improved clipboard API
     document.getElementById('copyShareLink')?.addEventListener('click', async function() {
         const shareUrl = this.getAttribute('data-share-url');
         try {
@@ -131,12 +115,4 @@ document.addEventListener('DOMContentLoaded', function() {
             toastEl.remove();
         });
     }
-
-    // Handle window resize
-    window.addEventListener('resize', function() {
-        updateZoom();
-    });
-
-    // Initial zoom update
-    updateZoom();
 });
