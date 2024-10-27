@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="viewer-container" style="background-color: {{ flipbook.background_color }}">
+    <div id="flipbook" class="flipbook">
+        {% for i in range(1, 100) %}
+        {% set image_path = url_for('static', filename='uploads/' + flipbook.filename.rsplit('.', 1)[0] + '/page_' + i|string + '.jpg') %}
+        <div class="page">
+            <img src="{{ image_path }}" alt="Page {{ i }}" onerror="this.style.display='none'">
+        </div>
+        {% endfor %}
+    </div>
+    <div class="controls">
+        <button id="prev" class="btn btn-secondary">Previous</button>
+        <button id="next" class="btn btn-secondary">Next</button>
+        <button id="zoomIn" class="btn btn-secondary">Zoom In</button>
+        <button id="zoomOut" class="btn btn-secondary">Zoom Out</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/turn.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
+{% endblock %}
