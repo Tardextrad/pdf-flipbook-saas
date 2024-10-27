@@ -148,6 +148,20 @@ def viewer(unique_id):
     
     return render_template('viewer.html', flipbook=flipbook)
 
+@app.route('/embed/<unique_id>')
+def embed_viewer(unique_id):
+    flipbook = Flipbook.query.filter_by(unique_id=unique_id).first_or_404()
+    
+    # Record page view for embedded viewer
+    page_view = PageView(
+        flipbook_id=flipbook.id,
+        ip_address=request.remote_addr
+    )
+    db.session.add(page_view)
+    db.session.commit()
+    
+    return render_template('embed.html', flipbook=flipbook)
+
 @app.route('/analytics')
 @login_required
 def analytics():

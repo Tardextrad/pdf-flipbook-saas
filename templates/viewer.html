@@ -13,6 +13,19 @@
         <img src="{{ url_for('static', filename='uploads/' + flipbook.logo_filename) }}" alt="Logo" class="flipbook-logo">
     </div>
     {% endif %}
+
+    <!-- Share and Embed Section -->
+    <div class="mb-3 text-center">
+        <div class="btn-group">
+            <button class="btn btn-secondary" id="copyShareLink" data-share-url="{{ request.url }}">
+                <i class="bi bi-link-45deg"></i> Copy Share Link
+            </button>
+            <button class="btn btn-secondary" id="showEmbedCode" data-bs-toggle="modal" data-bs-target="#embedModal">
+                <i class="bi bi-code-square"></i> Get Embed Code
+            </button>
+        </div>
+    </div>
+
     <div id="flipbook" class="flipbook">
         {% for i in range(1, 100) %}
         {% set image_path = url_for('static', filename='uploads/' + flipbook.filename.rsplit('.', 1)[0] + '/page_' + i|string + '.jpg') %}
@@ -28,11 +41,35 @@
         <button id="zoomOut" class="btn btn-secondary">Zoom Out</button>
     </div>
 </div>
+
+<!-- Embed Modal -->
+<div class="modal fade" id="embedModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Embed Flipbook</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Copy this code to embed the flipbook on your website:</p>
+                <div class="input-group">
+                    <textarea id="embedCode" class="form-control" rows="3" readonly><iframe src="{{ request.url_root.rstrip('/') }}{{ url_for('embed_viewer', unique_id=flipbook.unique_id) }}" width="800" height="600" frameborder="0"></iframe></textarea>
+                    <button class="btn btn-secondary" id="copyEmbedCode">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <!-- jQuery must be loaded first -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap Icons -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"></script>
 
 <!-- Primary turn.js source -->
 <script src="https://raw.githubusercontent.com/blasten/turn.js/master/turn.js"></script>
