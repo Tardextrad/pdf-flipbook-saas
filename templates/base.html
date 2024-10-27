@@ -25,10 +25,19 @@
     </nav>
 
     <div class="container mt-4">
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-info">{{ message }}</div>
+                {% for category, message in messages %}
+                    {% set alert_class = {
+                        'error': 'alert-danger',
+                        'success': 'alert-success',
+                        'info': 'alert-info',
+                        'warning': 'alert-warning'
+                    } %}
+                    <div class="alert {{ alert_class.get(category, 'alert-info') }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
