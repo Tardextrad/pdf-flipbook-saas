@@ -20,10 +20,10 @@
 <body>
     <div class="viewer-container">
         <div id="flipbook" class="flipbook">
-            {% for i in range(1, 100) %}
+            {% for i in range(1, flipbook.page_count + 1) %}
             {% set image_path = url_for('static', filename='uploads/' + flipbook.filename.rsplit('.', 1)[0] + '/page_' + i|string + '.jpg') %}
             <div class="page">
-                <img src="{{ image_path }}" alt="Page {{ i }}" onerror="this.style.display='none'">
+                <img src="{{ image_path }}" alt="Page {{ i }}">
             </div>
             {% endfor %}
         </div>

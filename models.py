@@ -24,6 +24,7 @@ class Flipbook(db.Model):
     unique_id = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    page_count = db.Column(db.Integer, nullable=False, default=0)
     views = db.relationship('PageView', backref='flipbook', lazy=True)
 
 class PageView(db.Model):

@@ -14,7 +14,7 @@ def process_pdf(pdf_path, output_dir):
             image_path = os.path.join(output_dir, f'page_{i + 1}.jpg')
             image.save(image_path, 'JPEG')
             image_files.append(image_path)
-        return image_files
+        return len(images)  # Return page count instead of image_files
     except Exception as e:
         raise Exception(f"Error converting PDF: {str(e)}")
 

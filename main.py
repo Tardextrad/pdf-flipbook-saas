@@ -10,7 +10,6 @@ import os
 import logging
 from datetime import datetime, timedelta
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -106,12 +105,13 @@ def upload():
             try:
                 output_dir = os.path.join(app.config['UPLOAD_FOLDER'], filename.rsplit('.', 1)[0])
                 os.makedirs(output_dir, exist_ok=True)
-                process_pdf(filepath, output_dir)
+                page_count = process_pdf(filepath, output_dir)
                 
                 flipbook = Flipbook()
                 flipbook.title = form.title.data
                 flipbook.filename = filename
                 flipbook.user_id = current_user.id
+                flipbook.page_count = page_count
                 
                 db.session.add(flipbook)
                 db.session.commit()
@@ -128,7 +128,6 @@ def upload():
 def viewer(unique_id):
     flipbook = Flipbook.query.filter_by(unique_id=unique_id).first_or_404()
     
-    # Record page view
     page_view = PageView(
         flipbook_id=flipbook.id,
         ip_address=request.remote_addr
@@ -142,7 +141,6 @@ def viewer(unique_id):
 def embed_viewer(unique_id):
     flipbook = Flipbook.query.filter_by(unique_id=unique_id).first_or_404()
     
-    # Record page view for embedded viewer
     page_view = PageView(
         flipbook_id=flipbook.id,
         ip_address=request.remote_addr
@@ -155,15 +153,12 @@ def embed_viewer(unique_id):
 @app.route('/analytics')
 @login_required
 def analytics():
-    # Get user's flipbooks
     user_flipbooks = Flipbook.query.filter_by(user_id=current_user.id).all()
     
     analytics_data = {}
     for flipbook in user_flipbooks:
-        # Total views
         total_views = PageView.query.filter_by(flipbook_id=flipbook.id).count()
         
-        # Views over time (last 7 days)
         seven_days_ago = datetime.utcnow() - timedelta(days=7)
         daily_views = db.session.query(
             func.date(PageView.viewed_at).label('date'),
@@ -175,7 +170,6 @@ def analytics():
             func.date(PageView.viewed_at)
         ).all()
         
-        # Format daily views for the chart
         dates = [(seven_days_ago + timedelta(days=x)).strftime('%Y-%m-%d') for x in range(8)]
         views_data = {date: 0 for date in dates}
         for date, count in daily_views:
