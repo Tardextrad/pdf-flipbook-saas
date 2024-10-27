@@ -29,5 +29,4 @@ login_manager.login_view = 'login'
 
 with app.app_context():
     import models
-    db.drop_all()  # Temporarily add this line to drop all tables
     db.create_all()
