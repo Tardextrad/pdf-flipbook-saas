@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --secondary-color: #8b5cf6;
+        --dark-bg: #1f2937;
+        --card-bg: #ffffff;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+    }
+
+    /* Common styles */
+    body {
+        background-color: #f3f4f6;
+        color: var(--text-primary);
+    }
+
+    .navbar {
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand {
+        color: white !important;
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+
+    .nav-link {
+        color: rgba(255,255,255,0.9) !important;
+        margin: 0 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: white !important;
+        transform: translateY(-1px);
+    }
+
+    /* Dashboard Cards */
+    .flipbook-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .flipbook-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    /* Buttons */
+    .btn-gradient {
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+
+    /* Analytics */
+    .chart-container {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Viewer */
+    .viewer-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .page-indicator {
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Template -->
+{% if request.endpoint == 'dashboard' %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">My Flipbooks</h1>
+        <a href="{{ url_for('upload') }}" class="btn btn-gradient">
+            <i class="fas fa-plus me-2"></i>Create New Flipbook
+        </a>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--primary-color)">
+                <i class="fas fa-book"></i>
+            </div>
+            <div>
+                <h3 class="h6 text-secondary mb-1">Total Flipbooks</h3>
+                <p class="h4 mb-0">{{ flipbooks|length }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--secondary-color)">
+                <i class="fas fa-eye"></i>
+            </div>
+            <div>
+                <h3 class="h6 text-secondary mb-1">Total Views</h3>
+                <p class="h4 mb-0">{{ total_views }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for flipbook in flipbooks %}
+        <div class="col-md-4 mb-4">
+            <div class="flipbook-card">
+                <div class="p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="mb-0">{{ flipbook.title }}</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-link text-secondary" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('edit_flipbook', id=flipbook.id) }}">
+                                    <i class="fas fa-edit me-2"></i>Edit
+                                </a></li>
+                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ flipbook.id }}">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        <i class="far fa-calendar-alt me-2"></i>
+                        {{ flipbook.created_at.strftime('%B %d, %Y') }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('viewer', unique_id=flipbook.unique_id) }}" class="btn btn-gradient">
+                            <i class="fas fa-eye me-2"></i>View
+                        </a>
+                        <span class="text-secondary">
+                            <i class="fas fa-eye me-1"></i>
+                            {{ flipbook.views|default(0) }} views
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Analytics Template -->
+{% if request.endpoint == 'analytics' %}
+<div class="container py-5">
+    <h1 class="h3 mb-4">Analytics Dashboard</h1>
+    
+    {% if analytics_data %}
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--primary-color)">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+                <h3 class="h6 text-secondary mb-1">Total Views (All Time)</h3>
+                <p class="h4 mb-0">{{ total_views }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--secondary-color)">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <h3 class="h6 text-secondary mb-1">Active Viewers</h3>
+                <p class="h4 mb-0">{{ active_viewers }}</p>
+            </div>
+        </div>
+    </div>
+
+    {% for flipbook_id, data in analytics_data.items() %}
+    <div class="chart-container mb-4">
+        <h5 class="mb-4">{{ data.title }}</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="p-3 bg-light rounded">
+                    <h6 class="text-secondary mb-2">Total Views</h6>
+                    <h3 class="mb-0">{{ data.total_views }}</h3>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div id="chart-{{ flipbook_id }}" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info">
+        No flipbooks found. <a href="{{ url_for('upload') }}" class="alert-link">Create your first flipbook</a> to see analytics.
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.0/apexcharts.min.js"></script>
+<script>
+    // Initialize charts for analytics
+    {% if request.endpoint == 'analytics' %}
+    {% for flipbook_id, data in analytics_data.items() %}
+    new ApexCharts(document.querySelector("#chart-{{ flipbook_id }}"), {
+        chart: {
+            type: 'area',
+            height: 300,
+            toolbar: {
+                show: false
+            }
+        },
+        series: [{
+            name: 'Views',
+            data: {{ data.daily_views|tojson }}
+        }],
+        xaxis: {
+            categories: {{ data.dates|tojson }},
+            type: 'datetime'
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 2
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.7,
+                opacityTo: 0.2,
+                stops: [0, 90, 100]
+            }
+        },
+        colors: ['#4f46e5']
+    }).render();
+    {% endfor %}
+    {% endif %}
+</script>
+{% endblock %}

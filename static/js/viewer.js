@@ -64,24 +64,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Sharing functionality with improved clipboard API
+    // Share functionality
     document.getElementById('copyShareLink')?.addEventListener('click', async function() {
-        const shareUrl = this.getAttribute('data-share-url');
         try {
-            await navigator.clipboard.writeText(shareUrl);
+            await navigator.clipboard.writeText(this.dataset.shareUrl);
             showToast('Share link copied to clipboard!', 'success');
         } catch (err) {
-            showToast('Failed to copy link. Please try again.', 'danger');
+            showToast('Failed to copy link', 'error');
         }
     });
 
+    // Embed functionality
     document.getElementById('copyEmbedCode')?.addEventListener('click', async function() {
-        const embedCode = document.getElementById('embedCode');
         try {
+            const embedCode = document.getElementById('embedCode');
             await navigator.clipboard.writeText(embedCode.value);
-            showToast('Embed code copied to clipboard!', 'success');
+            showToast('Embed code copied!', 'success');
         } catch (err) {
-            showToast('Failed to copy embed code. Please try again.', 'danger');
+            showToast('Failed to copy embed code', 'error');
         }
     });
 
