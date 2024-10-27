@@ -15,10 +15,10 @@
     </div>
 
     <div id="flipbook" class="flipbook">
-        {% for i in range(1, 100) %}
+        {% for i in range(1, 21) %}
         {% set image_path = url_for('static', filename='uploads/' + flipbook.filename.rsplit('.', 1)[0] + '/page_' + i|string + '.jpg') %}
         <div class="page">
-            <img src="{{ image_path }}" alt="Page {{ i }}" onerror="this.style.display='none'">
+            <img src="{{ image_path }}" alt="Page {{ i }}" loading="eager" onerror="this.style.display='none'">
         </div>
         {% endfor %}
     </div>
@@ -55,6 +55,25 @@
 
 <!-- Toast Container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+<style>
+.loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: var(--accent-purple);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -66,4 +85,24 @@
 
 <!-- Custom viewer script -->
 <script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
+
+<!-- Lazy load remaining pages -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Start loading remaining pages after initial load
+    setTimeout(() => {
+        for (let i = 21; i <= 100; i++) {
+            const div = document.createElement('div');
+            div.className = 'page';
+            const img = document.createElement('img');
+            img.src = `/static/uploads/{{ flipbook.filename.rsplit('.', 1)[0] }}/page_${i}.jpg`;
+            img.alt = `Page ${i}`;
+            img.loading = 'lazy';
+            img.onerror = function() { this.style.display = 'none'; };
+            div.appendChild(img);
+            document.getElementById('flipbook').appendChild(div);
+        }
+    }, 1000);
+});
+</script>
 {% endblock %}
