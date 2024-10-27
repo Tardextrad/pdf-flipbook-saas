@@ -20,11 +20,12 @@ def push_to_github():
         'git config --global credential.helper store',
         'git config --global user.name "Replit User"',
         'git config --global user.email "replit@example.com"',
+        'git init',  # Reinitialize the repository
+        'git add -A',  # Add all files
+        'git commit -m "Initial commit: Complete PDF Flipbook SaaS implementation" --allow-empty',  # Force a commit
         'git remote remove origin || true',  # Remove if exists
         f'git remote add origin "https://x-access-token:{token}@github.com/Tardextrad/pdf-flipbook-saas.git"',
-        'git add .',
-        'git commit -m "Initial commit: Complete PDF Flipbook SaaS implementation" || true',
-        'git branch -M main',
+        'git branch -M main',  # Rename current branch to main
         'git push -u origin main --force'  # Force push to overcome any conflicts
     ]
     
