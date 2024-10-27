@@ -211,4 +211,12 @@ def track_page(unique_id):
     return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    # Get port from environment variable or use 5000 as default
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Configure server to run on all interfaces with proper host binding
+    app.run(
+        host='0.0.0.0',  # Bind to all interfaces
+        port=port,
+        debug=False      # Disable debug mode for security
+    )
