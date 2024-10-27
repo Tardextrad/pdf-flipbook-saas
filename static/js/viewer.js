@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
     const flipbook = document.getElementById('flipbook');
-    let currentZoom = 1;
 
     // Add loading indicator
     const loadingIndicator = document.createElement('div');
@@ -87,21 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
             $(flipbook).turn('previous');
         } else if (e.key === 'ArrowRight') {
             $(flipbook).turn('next');
-        }
-    });
-
-    // Zoom controls
-    document.getElementById('zoomIn').addEventListener('click', function() {
-        if (currentZoom < 2) {
-            currentZoom += 0.2;
-            flipbook.style.transform = `scale(${currentZoom})`;
-        }
-    });
-
-    document.getElementById('zoomOut').addEventListener('click', function() {
-        if (currentZoom > 0.5) {
-            currentZoom -= 0.2;
-            flipbook.style.transform = `scale(${currentZoom})`;
         }
     });
 
