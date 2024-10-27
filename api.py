@@ -10,10 +10,10 @@ import os
 
 api = Blueprint('api', __name__)
 
-def get_token(user):
+def generate_access_token(user):
     payload = {
         'user_id': user.id,
-        'exp': datetime.utcnow() + timedelta(days=1)
+        'exp': datetime.utcnow() + timedelta(minutes=15)  # Short-lived access token
     }
     return jwt.encode(payload, os.environ.get('FLASK_SECRET_KEY'), algorithm='HS256')
 
@@ -36,7 +36,7 @@ def token_required(f):
                 return jsonify({'error': 'Invalid token'}), 401
             return f(current_user, *args, **kwargs)
         except jwt.ExpiredSignatureError:
-            return jsonify({'error': 'Token has expired'}), 401
+            return jsonify({'error': 'Token has expired', 'code': 'TOKEN_EXPIRED'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'error': 'Invalid token'}), 401
             
@@ -50,9 +50,13 @@ def api_login():
     
     user = User.query.filter_by(email=data['email']).first()
     if user and user.check_password(data['password']):
-        token = get_token(user)
+        access_token = generate_access_token(user)
+        refresh_token = user.generate_refresh_token()
+        db.session.commit()
+        
         return jsonify({
-            'token': token,
+            'access_token': access_token,
+            'refresh_token': refresh_token,
             'user': {
                 'id': user.id,
                 'username': user.username,
@@ -60,6 +64,37 @@ def api_login():
             }
         })
     return jsonify({'error': 'Invalid credentials'}), 401
+
+@api.route('/auth/refresh', methods=['POST'])
+def refresh_token():
+    data = request.get_json()
+    if not data or 'refresh_token' not in data:
+        return jsonify({'error': 'Refresh token is required'}), 400
+        
+    refresh_token = data['refresh_token']
+    user = User.query.filter_by(refresh_token=refresh_token).first()
+    
+    if not user or not user.is_refresh_token_valid(refresh_token):
+        return jsonify({'error': 'Invalid or expired refresh token'}), 401
+        
+    # Generate new access token
+    access_token = generate_access_token(user)
+    
+    # Optionally rotate refresh token for better security
+    new_refresh_token = user.generate_refresh_token()
+    db.session.commit()
+    
+    return jsonify({
+        'access_token': access_token,
+        'refresh_token': new_refresh_token
+    })
+
+@api.route('/auth/logout', methods=['POST'])
+@token_required
+def api_logout(current_user):
+    current_user.revoke_refresh_token()
+    db.session.commit()
+    return jsonify({'message': 'Successfully logged out'})
 
 @api.route('/auth/register', methods=['POST'])
 def api_register():
@@ -82,9 +117,13 @@ def api_register():
         db.session.add(user)
         db.session.commit()
         
-        token = get_token(user)
+        access_token = generate_access_token(user)
+        refresh_token = user.generate_refresh_token()
+        db.session.commit()
+        
         return jsonify({
-            'token': token,
+            'access_token': access_token,
+            'refresh_token': refresh_token,
             'user': {
                 'id': user.id,
                 'username': user.username,

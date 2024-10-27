@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,6 +9,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256))
+    refresh_token = db.Column(db.String(256), unique=True)
+    refresh_token_expiry = db.Column(db.DateTime)
     flipbooks = db.relationship('Flipbook', backref='owner', lazy=True)
 
     def set_password(self, password):
@@ -16,6 +18,20 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+        
+    def generate_refresh_token(self):
+        self.refresh_token = str(uuid.uuid4())
+        self.refresh_token_expiry = datetime.utcnow() + timedelta(days=30)
+        return self.refresh_token
+        
+    def is_refresh_token_valid(self, token):
+        return (self.refresh_token == token and 
+                self.refresh_token_expiry and 
+                self.refresh_token_expiry > datetime.utcnow())
+
+    def revoke_refresh_token(self):
+        self.refresh_token = None
+        self.refresh_token_expiry = None
 
 class Flipbook(db.Model):
     id = db.Column(db.Integer, primary_key=True)
