@@ -1,5 +1,6 @@
 import os
 import logging
+import secrets
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -30,26 +31,36 @@ def create_app():
     # Initialize extensions
     init_extensions(app)
     
-    # Register blueprints
-    register_blueprints(app)
-    
-    # Initialize database
-    init_database(app)
+    # Register blueprints and initialize database
+    with app.app_context():
+        register_blueprints(app)
+        init_database(app)
     
     return app
 
 def configure_app(app):
     """Set core application configuration."""
-    app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
+    # Get required environment variables
+    required_vars = ['DATABASE_URL', 'FLASK_SECRET_KEY']
+    missing_vars = [var for var in required_vars if not os.environ.get(var)]
+    
+    if missing_vars:
+        logger.error(f"Missing required environment variables: {', '.join(missing_vars)}")
+        raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+    
+    # Set Flask configuration
     app.config.update(
-        SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL"),
+        SECRET_KEY=os.environ['FLASK_SECRET_KEY'],
+        SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
         SQLALCHEMY_ENGINE_OPTIONS={
             "pool_recycle": 300,
             "pool_pre_ping": True,
         },
-        MAX_CONTENT_LENGTH=16 * 1024 * 1024  # 16MB max file size
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max file size
+        LOGIN_DISABLED=False  # Enable login functionality
     )
-    logger.info("Application configured")
+    logger.info("Application configured successfully")
 
 def configure_uploads(app):
     """Configure upload directory."""
@@ -75,7 +86,7 @@ def configure_cors(app):
                  ],
                  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                  "allow_headers": ["Content-Type", "Authorization", 
-                                 "X-Requested-With", "Accept", "Origin"],
+                                "X-Requested-With", "Accept", "Origin"],
                  "supports_credentials": True,
                  "expose_headers": ["Content-Range", "X-Content-Range"]
              }
@@ -86,30 +97,28 @@ def init_extensions(app):
     """Initialize Flask extensions."""
     db.init_app(app)
     login_manager.init_app(app)
-    login_manager.login_view = 'login'  # String value instead of "login"
+    # Set login view after init_app to avoid the type error
+    app.config['LOGIN_VIEW'] = 'login'
+    login_manager.login_view = app.config['LOGIN_VIEW']
+    login_manager.session_protection = 'strong'
+    login_manager.login_message = 'Please log in to access this page.'
+    login_manager.login_message_category = 'info'
     logger.info("Extensions initialized")
 
 def register_blueprints(app):
     """Register Flask blueprints."""
+    # Import blueprints here to avoid circular imports
     from api import api
     app.register_blueprint(api, url_prefix='/api')
-    logger.info("Blueprints registered")
+
+    # Import routes after creating app instance
+    from main import init_routes
+    init_routes(app)
+    logger.info("Blueprints and routes registered")
 
 def init_database(app):
     """Initialize the database."""
-    try:
-        with app.app_context():
-            import models  # Import models here to avoid circular imports
-            db.create_all()
-            logger.info("Database initialized successfully")
-    except Exception as e:
-        logger.error(f"Database initialization failed: {str(e)}")
-        raise
-
-# Create the application instance
-app = create_app()
-
-if __name__ == '__main__':
-    debug_mode = os.environ.get('FLASK_DEBUG', '').lower() == 'true'  # Convert string to boolean
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port, debug=debug_mode)
+    # Import models here to avoid circular imports
+    import models
+    db.create_all()
+    logger.info("Database initialized successfully")
