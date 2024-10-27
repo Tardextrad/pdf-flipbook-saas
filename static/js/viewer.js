@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         $(flipbook).turn('next');
     });
 
+    // Zoom controls
     document.getElementById('zoomIn').addEventListener('click', function() {
         if (currentZoom < 2) {
             currentZoom += 0.2;
@@ -46,37 +47,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Sharing functionality
-    document.getElementById('copyShareLink').addEventListener('click', function() {
+    // Sharing functionality with improved clipboard API
+    document.getElementById('copyShareLink').addEventListener('click', async function() {
         const shareUrl = this.getAttribute('data-share-url');
-        navigator.clipboard.writeText(shareUrl).then(() => {
-            showToast('Share link copied to clipboard!');
-        });
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            showToast('Share link copied to clipboard!', 'success');
+        } catch (err) {
+            showToast('Failed to copy link. Please try again.', 'danger');
+        }
     });
 
-    document.getElementById('copyEmbedCode').addEventListener('click', function() {
+    document.getElementById('copyEmbedCode').addEventListener('click', async function() {
         const embedCode = document.getElementById('embedCode');
-        embedCode.select();
-        navigator.clipboard.writeText(embedCode.value).then(() => {
-            showToast('Embed code copied to clipboard!');
-        });
+        try {
+            await navigator.clipboard.writeText(embedCode.value);
+            showToast('Embed code copied to clipboard!', 'success');
+        } catch (err) {
+            showToast('Failed to copy embed code. Please try again.', 'danger');
+        }
     });
 
-    // Toast notification
-    function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3';
-        toast.setAttribute('role', 'alert');
-        toast.innerHTML = `
+    // Enhanced toast notification system
+    function showToast(message, type = 'success') {
+        const toastContainer = document.querySelector('.toast-container');
+        const toastEl = document.createElement('div');
+        toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
+        
+        toastEl.innerHTML = `
             <div class="d-flex">
-                <div class="toast-body">${message}</div>
+                <div class="toast-body">
+                    <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                    ${message}
+                </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         `;
-        document.body.appendChild(toast);
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-        toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        
+        toastContainer.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl, {
+            autohide: true,
+            delay: 3000
+        });
+        toast.show();
+        
+        toastEl.addEventListener('hidden.bs.toast', () => {
+            toastEl.remove();
+        });
     }
 
     // Keyboard navigation

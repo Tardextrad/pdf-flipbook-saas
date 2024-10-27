@@ -18,10 +18,10 @@
     <div class="mb-3 text-center">
         <div class="btn-group">
             <button class="btn btn-secondary" id="copyShareLink" data-share-url="{{ request.url }}">
-                <i class="bi bi-link-45deg"></i> Copy Share Link
+                <i class="bi bi-share"></i> Share
             </button>
             <button class="btn btn-secondary" id="showEmbedCode" data-bs-toggle="modal" data-bs-target="#embedModal">
-                <i class="bi bi-code-square"></i> Get Embed Code
+                <i class="bi bi-code-square"></i> Embed
             </button>
         </div>
     </div>
@@ -35,10 +35,10 @@
         {% endfor %}
     </div>
     <div class="controls">
-        <button id="prev" class="btn btn-secondary">Previous</button>
-        <button id="next" class="btn btn-secondary">Next</button>
-        <button id="zoomIn" class="btn btn-secondary">Zoom In</button>
-        <button id="zoomOut" class="btn btn-secondary">Zoom Out</button>
+        <button id="prev" class="btn btn-secondary"><i class="bi bi-chevron-left"></i></button>
+        <button id="next" class="btn btn-secondary"><i class="bi bi-chevron-right"></i></button>
+        <button id="zoomIn" class="btn btn-secondary"><i class="bi bi-zoom-in"></i></button>
+        <button id="zoomOut" class="btn btn-secondary"><i class="bi bi-zoom-out"></i></button>
     </div>
 </div>
 
@@ -53,33 +53,26 @@
             <div class="modal-body">
                 <p>Copy this code to embed the flipbook on your website:</p>
                 <div class="input-group">
-                    <textarea id="embedCode" class="form-control" rows="3" readonly><iframe src="{{ request.url_root.rstrip('/') }}{{ url_for('embed_viewer', unique_id=flipbook.unique_id) }}" width="800" height="600" frameborder="0"></iframe></textarea>
+                    <textarea id="embedCode" class="form-control" rows="4" readonly><iframe src="{{ request.url_root.rstrip('/') }}{{ url_for('embed_viewer', unique_id=flipbook.unique_id) }}" width="100%" height="600" style="border: none; min-width: 800px;" allowfullscreen></iframe></textarea>
                     <button class="btn btn-secondary" id="copyEmbedCode">
-                        <i class="bi bi-clipboard"></i> Copy
+                        <i class="bi bi-clipboard"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
 {% endblock %}
 
 {% block scripts %}
 <!-- jQuery must be loaded first -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Bootstrap Icons -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"></script>
-
 <!-- Primary turn.js source -->
 <script src="https://raw.githubusercontent.com/blasten/turn.js/master/turn.js"></script>
-
-<!-- Fallback turn.js source -->
-<script>
-if (typeof $.fn.turn === 'undefined') {
-    document.write('<script src="https://raw.githack.com/blasten/turn.js/master/turn.js"><\/script>');
-}
-</script>
 
 <!-- Custom viewer script -->
 <script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
