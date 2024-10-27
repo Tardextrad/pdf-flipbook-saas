@@ -19,7 +19,7 @@ login_manager = LoginManager()
 app = Flask(__name__)
 
 # Environment variables and configuration
-app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
+app.secret_key = os.environ.get("FLASK_SEfrom flask import Flask  # Removed request since it is unusedCRET_KEY") or "a secret key"
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
