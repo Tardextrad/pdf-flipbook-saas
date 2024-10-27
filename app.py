@@ -59,6 +59,10 @@ db.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+# Register API blueprint
+from api import api
+app.register_blueprint(api, url_prefix='/api')
+
 # Initialize database
 with app.app_context():
     import models
