@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
+from flask_cors import CORS
 
 class Base(DeclarativeBase):
     pass
@@ -11,6 +12,19 @@ db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
 
 app = Flask(__name__)
+# Configure CORS to allow Next.js frontend integration
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "http://localhost:3000",  # Next.js development server
+            "https://*.replit.app",    # Replit deployment domains
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True    # Allow credentials for authenticated requests
+    }
+})
+
 app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
