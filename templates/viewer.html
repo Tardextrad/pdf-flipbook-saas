@@ -1,27 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if flipbook.custom_css %}
-<style>
-{{ flipbook.custom_css | safe }}
-</style>
-{% endif %}
-
-<div class="viewer-container" style="background-color: {{ flipbook.background_color }}">
-    {% if flipbook.logo_filename %}
-    <div class="logo-container mb-3">
-        <img src="{{ url_for('static', filename='uploads/' + flipbook.logo_filename) }}" alt="Logo" class="flipbook-logo">
-    </div>
-    {% endif %}
-
+<div class="viewer-container">
     <!-- Share and Embed Section -->
-    <div class="mb-3 text-center">
+    <div class="mb-4 text-center">
         <div class="btn-group">
-            <button class="btn btn-secondary" id="copyShareLink" data-share-url="{{ request.url }}">
-                <i class="bi bi-share"></i> Share
+            <button class="btn btn-gradient" id="copyShareLink" data-share-url="{{ request.url }}">
+                <i class="bi bi-share me-2"></i>Share
             </button>
-            <button class="btn btn-secondary" id="showEmbedCode" data-bs-toggle="modal" data-bs-target="#embedModal">
-                <i class="bi bi-code-square"></i> Embed
+            <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#embedModal">
+                <i class="bi bi-code-square me-2"></i>Embed
             </button>
         </div>
     </div>
@@ -34,29 +22,31 @@
         </div>
         {% endfor %}
     </div>
-    <div class="controls">
-        <button id="prev" class="btn btn-secondary"><i class="bi bi-chevron-left"></i></button>
-        <button id="next" class="btn btn-secondary"><i class="bi bi-chevron-right"></i></button>
-        <button id="zoomIn" class="btn btn-secondary"><i class="bi bi-zoom-in"></i></button>
-        <button id="zoomOut" class="btn btn-secondary"><i class="bi bi-zoom-out"></i></button>
+    <div class="controls mt-4">
+        <button id="prev" class="btn btn-gradient"><i class="bi bi-chevron-left"></i></button>
+        <button id="next" class="btn btn-gradient"><i class="bi bi-chevron-right"></i></button>
+        <button id="zoomIn" class="btn btn-gradient"><i class="bi bi-zoom-in"></i></button>
+        <button id="zoomOut" class="btn btn-gradient"><i class="bi bi-zoom-out"></i></button>
     </div>
 </div>
 
 <!-- Embed Modal -->
 <div class="modal fade" id="embedModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-secondary">
                 <h5 class="modal-title">Embed Flipbook</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Copy this code to embed the flipbook on your website:</p>
-                <div class="input-group">
-                    <textarea id="embedCode" class="form-control" rows="4" readonly><iframe src="{{ request.url_root.rstrip('/') }}{{ url_for('embed_viewer', unique_id=flipbook.unique_id) }}" width="100%" height="600" style="border: none; min-width: 800px;" allowfullscreen></iframe></textarea>
-                    <button class="btn btn-secondary" id="copyEmbedCode">
-                        <i class="bi bi-clipboard"></i>
-                    </button>
+                <div class="form-group">
+                    <label class="form-label">Copy this code to embed the flipbook:</label>
+                    <div class="input-group">
+                        <textarea id="embedCode" class="form-control bg-dark text-light" rows="3" readonly><iframe src="{{ request.url_root }}embed/{{ flipbook.unique_id }}" width="100%" height="600" style="border:none;" allowfullscreen></iframe></textarea>
+                        <button class="btn btn-gradient" id="copyEmbedCode">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
