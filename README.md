@@ -39,79 +39,53 @@ A modern web application that transforms PDF documents into interactive digital 
   - Iframe support for external websites
   - Toast notifications for user feedback
 
-## Technologies Used
+## Deployment on Replit
 
-- **Backend**:
-  - Flask (Python web framework)
-  - SQLAlchemy (ORM)
-  - JWT for API authentication
-  - pdf2image for PDF processing
+1. Fork the project on Replit:
+   - Visit [Replit](https://replit.com)
+   - Create a new repl
+   - Choose "Import from GitHub"
+   - Enter the repository URL: `https://github.com/Tardextrad/pdf-flipbook-saas.git`
 
-- **Frontend**:
-  - Bootstrap 5 (Dark theme)
-  - turn.js for flipbook effects
-  - Chart.js for analytics visualization
-  - Vanilla JavaScript
+2. Set up environment variables in Replit:
+   - Go to the "Secrets" tab in your repl
+   - Add the following environment variables:
+     - `FLASK_SECRET_KEY`: A secure random string for session encryption
+     - `DATABASE_URL`: PostgreSQL database URL (automatically set by Replit)
+     - `PORT`: Server port (default: 8080)
 
-- **Database**:
-  - PostgreSQL
+3. Install Dependencies:
+   - The project will automatically install required dependencies on first run
+   - Dependencies are managed through the Replit packager system
+   - If needed, you can manually install packages using the Packages tab
 
-## Installation
+4. Database Setup:
+   - The PostgreSQL database is automatically provisioned by Replit
+   - Run migrations to set up the database schema:
+     ```bash
+     python migrations.py
+     ```
 
-1. Clone the repository:
-```bash
-git clone https://github.com/Tardextrad/pdf-flipbook-saas.git
-cd pdf-flipbook-saas
-```
+5. Start the Application:
+   - Click the "Run" button in Replit
+   - The server will start automatically on port 8080
+   - Your application will be available at your Replit URL
 
-2. Install Python dependencies:
-```bash
-pip install -r requirements.txt
-```
+6. Continuous Deployment:
+   - Replit automatically detects changes and restarts the application
+   - The application uses Replit's always-on feature to maintain uptime
+   - Database connections are automatically managed by Replit
 
-3. Set up environment variables:
-```bash
-FLASK_SECRET_KEY=your_secret_key
-DATABASE_URL=postgresql://username:password@host:port/database
-```
+7. Monitoring:
+   - Use Replit's built-in console to monitor logs
+   - Check the "Shell" tab for any error messages
+   - Monitor database status in the "Database" tab
 
-4. Initialize the database:
-```bash
-python migrations.py
-```
-
-5. Start the server:
-```bash
-python main.py
-```
-
-The application will be available at `http://localhost:8080`
-
-## Usage Guide
-
-### Creating a Flipbook
-
-1. Register/Login to your account
-2. Navigate to the dashboard
-3. Click "Create New Flipbook"
-4. Upload your PDF file and provide a title
-5. Wait for conversion to complete
-6. Access your flipbook from the dashboard
-
-### Viewing and Sharing
-
-1. Open any flipbook from your dashboard
-2. Use arrow keys or click arrows to navigate pages
-3. Use zoom controls to adjust view
-4. Click "Share" to copy the sharing link
-5. Click "Embed" to get the embed code for your website
-
-### Analytics
-
-1. Navigate to the Analytics dashboard
-2. View total views for each flipbook
-3. Check the 7-day view history chart
-4. Monitor user engagement metrics
+8. Troubleshooting:
+   - If the application fails to start, check the console for error messages
+   - Verify all required secrets are set in the Secrets tab
+   - Ensure the database is properly initialized
+   - Use the "Stop" and "Run" buttons to restart the application if needed
 
 ## API Documentation
 
@@ -163,14 +137,6 @@ Authorization: Bearer your_access_token
 GET /api/flipbooks/<unique_id>
 Authorization: Bearer your_access_token
 ```
-
-## Environment Variables
-
-Required environment variables:
-
-- `FLASK_SECRET_KEY`: Secret key for Flask session and JWT
-- `DATABASE_URL`: PostgreSQL database URL
-- `PORT`: Server port (default: 8080)
 
 ## Screenshots
 
