@@ -1,4 +1,4 @@
-from app import app, db, login_manager
+from app import app, db, login_manager, logger
 from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from models import User, Flipbook, PageView
@@ -7,15 +7,15 @@ from utils import allowed_file, process_pdf, generate_unique_filename
 from werkzeug.utils import secure_filename
 from sqlalchemy import func
 import os
-import logging
 from datetime import datetime, timedelta
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 @login_manager.user_loader
 def load_user(id):
-    return User.query.get(int(id))
+    try:
+        return db.session.get(User, int(id))
+    except Exception as e:
+        logger.error(f"Error loading user: {str(e)}")
+        return None
 
 @app.route('/')
 def index():
@@ -64,8 +64,6 @@ def register():
             username = form.username.data
             email = form.email.data
             
-            logger.info(f"Attempting to register new user with username: {username}")
-            
             user = User()
             user.username = username
             user.email = email
@@ -74,7 +72,6 @@ def register():
             db.session.add(user)
             db.session.commit()
             
-            logger.info(f"New user registered successfully: {email}")
             flash('Registration successful! Please login with your credentials.', 'success')
             return redirect(url_for('login'))
             
@@ -138,10 +135,10 @@ def upload():
 def viewer(unique_id):
     flipbook = Flipbook.query.filter_by(unique_id=unique_id).first_or_404()
     
-    page_view = PageView(
-        flipbook_id=flipbook.id,
-        ip_address=request.remote_addr
-    )
+    page_view = PageView()
+    page_view.flipbook_id = flipbook.id
+    page_view.ip_address = request.remote_addr
+    
     db.session.add(page_view)
     db.session.commit()
     
@@ -151,10 +148,10 @@ def viewer(unique_id):
 def embed_viewer(unique_id):
     flipbook = Flipbook.query.filter_by(unique_id=unique_id).first_or_404()
     
-    page_view = PageView(
-        flipbook_id=flipbook.id,
-        ip_address=request.remote_addr
-    )
+    page_view = PageView()
+    page_view.flipbook_id = flipbook.id
+    page_view.ip_address = request.remote_addr
+    
     db.session.add(page_view)
     db.session.commit()
     
@@ -196,27 +193,31 @@ def analytics():
 @app.route('/track_page/<unique_id>', methods=['POST'])
 def track_page(unique_id):
     flipbook = Flipbook.query.filter_by(unique_id=unique_id).first_or_404()
-    page_number = request.json.get('page_number')
-    
-    if page_number is not None:
-        page_view = PageView.query.filter_by(
-            flipbook_id=flipbook.id,
-            ip_address=request.remote_addr
-        ).order_by(PageView.id.desc()).first()
+    if request.json and 'page_number' in request.json:
+        page_number = request.json['page_number']
         
-        if page_view:
-            page_view.page_number = page_number
-            db.session.commit()
+        if page_number is not None:
+            page_view = PageView.query.filter_by(
+                flipbook_id=flipbook.id,
+                ip_address=request.remote_addr
+            ).order_by(PageView.id.desc()).first()
+            
+            if page_view:
+                page_view.page_number = page_number
+                db.session.commit()
     
     return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
-    # Get port from environment variable or use 5000 as default
-    port = int(os.environ.get('PORT', 5000))
-    
-    # Configure server to run on all interfaces with proper host binding
-    app.run(
-        host='0.0.0.0',  # Bind to all interfaces
-        port=port,
-        debug=False      # Disable debug mode for security
-    )
+    try:
+        port = int(os.environ.get('PORT', 8080))
+        logger.info(f"Starting server on port {port}")
+        app.run(
+            host='0.0.0.0',
+            port=port,
+            debug=False,
+            threaded=True
+        )
+    except Exception as e:
+        logger.error(f"Failed to start server: {str(e)}")
+        raise

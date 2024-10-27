@@ -367,6 +367,8 @@ dependencies = [
     { name = "oauthlib" },
     { name = "pdf2image" },
     { name = "psycopg2-binary" },
+    { name = "sqlalchemy" },
+    { name = "werkzeug" },
 ]
 
 [package.metadata]
@@ -380,6 +382,8 @@ requires-dist = [
     { name = "oauthlib", specifier = ">=3.2.2" },
     { name = "pdf2image", specifier = ">=1.17.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
+    { name = "sqlalchemy" },
+    { name = "werkzeug" },
 ]
 
 [[package]]

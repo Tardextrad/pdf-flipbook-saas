@@ -13,4 +13,6 @@ dependencies = [
     "pdf2image>=1.17.0",
     "flask-wtf>=1.2.2",
     "flask-cors>=5.0.0",
+    "sqlalchemy",
+    "werkzeug",
 ]
