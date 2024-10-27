@@ -4,6 +4,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from models import User, Flipbook
 from forms import LoginForm, RegisterForm, UploadForm
 from utils import allowed_file, process_pdf, generate_unique_filename
+from werkzeug.utils import secure_filename
 import os
 
 @login_manager.user_loader
@@ -64,6 +65,13 @@ def upload():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
             
+            logo_filename = None
+            if form.logo.data:
+                logo = form.logo.data
+                logo_filename = generate_unique_filename(secure_filename(logo.filename))
+                logo_path = os.path.join(app.config['UPLOAD_FOLDER'], logo_filename)
+                logo.save(logo_path)
+            
             try:
                 output_dir = os.path.join(app.config['UPLOAD_FOLDER'], filename.rsplit('.', 1)[0])
                 os.makedirs(output_dir, exist_ok=True)
@@ -73,6 +81,8 @@ def upload():
                     title=form.title.data,
                     filename=filename,
                     background_color=form.background_color.data,
+                    logo_filename=logo_filename,
+                    custom_css=form.custom_css.data,
                     user_id=current_user.id
                 )
                 db.session.add(flipbook)

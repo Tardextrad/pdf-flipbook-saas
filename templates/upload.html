@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Upload PDF</h2>
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.pdf_file.label(class="form-label") }}
+                        {{ form.pdf_file(class="form-control") }}
+                        <div class="form-text">Upload a PDF file to convert into a flipbook.</div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.background_color.label(class="form-label") }}
+                        {{ form.background_color(class="form-control", type="color") }}
+                        <div class="form-text">Choose a background color for your flipbook.</div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.logo.label(class="form-label") }}
+                        {{ form.logo(class="form-control") }}
+                        <div class="form-text">Upload a logo to display on your flipbook (optional).</div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.custom_css.label(class="form-label") }}
+                        {{ form.custom_css(class="form-control", rows=5) }}
+                        <div class="form-text">Add custom CSS to style your flipbook (optional).</div>
+                    </div>
+                    {{ form.submit(class="btn btn-primary") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

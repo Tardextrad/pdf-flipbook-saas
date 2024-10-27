@@ -35,3 +35,14 @@
     top: 50%;
     transform: translateY(-50%);
 }
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.flipbook-logo {
+    max-width: 200px;
+    max-height: 100px;
+    object-fit: contain;
+}

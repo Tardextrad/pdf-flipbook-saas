@@ -1,7 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if flipbook.custom_css %}
+<style>
+{{ flipbook.custom_css | safe }}
+</style>
+{% endif %}
+
 <div class="viewer-container" style="background-color: {{ flipbook.background_color }}">
+    {% if flipbook.logo_filename %}
+    <div class="logo-container mb-3">
+        <img src="{{ url_for('static', filename='uploads/' + flipbook.logo_filename) }}" alt="Logo" class="flipbook-logo">
+    </div>
+    {% endif %}
     <div id="flipbook" class="flipbook">
         {% for i in range(1, 100) %}
         {% set image_path = url_for('static', filename='uploads/' + flipbook.filename.rsplit('.', 1)[0] + '/page_' + i|string + '.jpg') %}

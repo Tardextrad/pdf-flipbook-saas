@@ -24,4 +24,6 @@ class Flipbook(db.Model):
     unique_id = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     background_color = db.Column(db.String(7), default='#ffffff')
+    logo_filename = db.Column(db.String(256))
+    custom_css = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
