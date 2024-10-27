@@ -1,91 +1,66 @@
 document.addEventListener('DOMContentLoaded', function() {
     const flipbook = document.getElementById('flipbook');
+    let currentZoom = 1;
 
-    // Add loading indicator
-    const loadingIndicator = document.createElement('div');
-    loadingIndicator.className = 'loading-spinner';
-    flipbook.parentElement.appendChild(loadingIndicator);
+    // Initialize turn.js with error handling
+    try {
+        $(flipbook).turn({
+            width: 800,
+            height: 600,
+            autoCenter: true,
+            gradients: true,
+            acceleration: true
+        });
 
-    // Wait for images to load before initialization
-    const images = flipbook.getElementsByTagName('img');
-    let loadedImages = 0;
-    
-    function initializeTurnJs() {
-        try {
-            $(flipbook).turn({
-                width: 800,
-                height: 600,
-                autoCenter: true,
-                gradients: true,
-                acceleration: true,
-                when: {
-                    turning: function(e, page) {
-                        // Update URL with current page
-                        const url = new URL(window.location);
-                        url.searchParams.set('page', page);
-                        window.history.replaceState({}, '', url);
-
-                        // Track page changes
-                        fetch(`/track_page/${window.location.pathname.split('/').pop()}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                page_number: page
-                            })
-                        });
-                    }
-                }
+        // Track page changes
+        $(flipbook).bind('turned', function(event, page) {
+            fetch(`/track_page/${window.location.pathname.split('/').pop()}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    page_number: page
+                })
             });
-            loadingIndicator.style.display = 'none';
-        } catch (error) {
-            console.error('Error initializing turn.js:', error);
-            loadingIndicator.innerHTML = 'Error loading viewer. Please refresh.';
-            document.querySelector('.controls').style.display = 'none';
-            showToast('Error loading flipbook viewer. Please try refreshing the page.', 'danger');
-        }
+        });
+
+        // Navigation controls
+        document.getElementById('prev').addEventListener('click', function() {
+            $(flipbook).turn('previous');
+        });
+
+        document.getElementById('next').addEventListener('click', function() {
+            $(flipbook).turn('next');
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                $(flipbook).turn('previous');
+            } else if (e.key === 'ArrowRight') {
+                $(flipbook).turn('next');
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing turn.js:', error);
+        // Fallback to basic viewer if turn.js fails
+        document.querySelector('.controls').style.display = 'none';
+        showToast('Error loading flipbook viewer. Please try refreshing the page.', 'danger');
     }
 
-    // Only initialize after images are loaded
-    Array.from(images).forEach(img => {
-        if (img.complete) {
-            loadedImages++;
-            if (loadedImages === images.length) {
-                initializeTurnJs();
-            }
-        } else {
-            img.onload = () => {
-                loadedImages++;
-                if (loadedImages === images.length) {
-                    initializeTurnJs();
-                }
-            };
-            img.onerror = () => {
-                loadedImages++;
-                img.style.display = 'none';
-                if (loadedImages === images.length) {
-                    initializeTurnJs();
-                }
-            };
+    // Zoom controls
+    document.getElementById('zoomIn').addEventListener('click', function() {
+        if (currentZoom < 2) {
+            currentZoom += 0.2;
+            flipbook.style.transform = `scale(${currentZoom})`;
         }
     });
 
-    // Navigation controls
-    document.getElementById('prev').addEventListener('click', function() {
-        $(flipbook).turn('previous');
-    });
-
-    document.getElementById('next').addEventListener('click', function() {
-        $(flipbook).turn('next');
-    });
-
-    // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowLeft') {
-            $(flipbook).turn('previous');
-        } else if (e.key === 'ArrowRight') {
-            $(flipbook).turn('next');
+    document.getElementById('zoomOut').addEventListener('click', function() {
+        if (currentZoom > 0.5) {
+            currentZoom -= 0.2;
+            flipbook.style.transform = `scale(${currentZoom})`;
         }
     });
 

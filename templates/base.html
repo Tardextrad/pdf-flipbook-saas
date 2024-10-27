@@ -29,47 +29,34 @@
             height: 100vh;
             background-color: var(--sidebar-bg);
             z-index: 1000;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease;
             padding-top: var(--header-height);
-            display: flex;
-            flex-direction: column;
         }
 
         .sidebar-link {
             display: flex;
             align-items: center;
-            padding: 0.875rem 1.5rem;
-            color: rgba(255, 255, 255, 0.7);
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-            margin: 0.25rem 0;
         }
 
-        .sidebar-link:hover {
-            color: white;
-            background: rgba(166, 108, 255, 0.1);
-            border-left-color: var(--accent-purple);
-        }
-
+        .sidebar-link:hover,
         .sidebar-link.active {
             color: white;
-            background: rgba(166, 108, 255, 0.15);
-            border-left-color: var(--accent-purple);
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
         }
 
         .sidebar-link i {
             margin-right: 1rem;
-            font-size: 1.25rem;
-            width: 1.5rem;
-            text-align: center;
+            font-size: 1.2rem;
         }
 
         .main-content {
             margin-left: var(--sidebar-width);
             padding: calc(var(--header-height) + 1rem) 2rem 2rem;
             min-height: 100vh;
-            transition: margin-left 0.3s ease;
         }
 
         .top-header {
@@ -84,7 +71,6 @@
             align-items: center;
             padding: 0 2rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: left 0.3s ease;
         }
 
         .brand {
@@ -103,17 +89,42 @@
 
         .brand-logo {
             font-size: 1.5rem;
-            font-weight: 500;
             color: white;
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            transition: color 0.3s ease;
         }
 
         .brand-logo:hover {
-            color: var(--accent-purple);
+            color: var(--accent-cyan);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .top-header {
+                left: 0;
+            }
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            border: none;
+            color: white;
+        }
+
+        .btn-gradient:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(166, 108, 255, 0.3);
         }
 
         .menu-toggle {
@@ -124,47 +135,12 @@
             font-size: 1.5rem;
             padding: 0.5rem;
             cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .menu-toggle:hover {
-            color: var(--accent-purple);
         }
 
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                box-shadow: none;
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .top-header {
-                left: 0;
-            }
-
             .menu-toggle {
                 display: block;
             }
-        }
-
-        .btn-gradient {
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
-            border: none;
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(166, 108, 255, 0.3);
         }
     </style>
 </head>
@@ -172,7 +148,7 @@
     <!-- Brand Logo -->
     <div class="brand">
         <a href="{{ url_for('index') }}" class="brand-logo">
-            <i class="bi bi-book-half"></i>
+            <i class="bi bi-book"></i>
             <span>PDF Flipbook</span>
         </a>
     </div>
@@ -180,39 +156,27 @@
     <!-- Sidebar Navigation -->
     <nav class="sidebar">
         {% if current_user.is_authenticated %}
-            <div class="d-flex flex-column h-100">
-                <div class="nav-links">
-                    <a href="{{ url_for('dashboard') }}" class="sidebar-link {{ 'active' if request.endpoint == 'dashboard' }}">
-                        <i class="bi bi-grid"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="{{ url_for('upload') }}" class="sidebar-link {{ 'active' if request.endpoint == 'upload' }}">
-                        <i class="bi bi-cloud-upload"></i>
-                        <span>Upload PDF</span>
-                    </a>
-                    <a href="{{ url_for('analytics') }}" class="sidebar-link {{ 'active' if request.endpoint == 'analytics' }}">
-                        <i class="bi bi-graph-up"></i>
-                        <span>Analytics</span>
-                    </a>
-                </div>
-                <div class="mt-auto mb-3">
-                    <a href="{{ url_for('logout') }}" class="sidebar-link">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Logout</span>
-                    </a>
-                </div>
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link {{ 'active' if request.endpoint == 'dashboard' }}">
+                <i class="bi bi-grid"></i>Dashboard
+            </a>
+            <a href="{{ url_for('upload') }}" class="sidebar-link {{ 'active' if request.endpoint == 'upload' }}">
+                <i class="bi bi-upload"></i>Upload
+            </a>
+            <a href="{{ url_for('analytics') }}" class="sidebar-link {{ 'active' if request.endpoint == 'analytics' }}">
+                <i class="bi bi-graph-up"></i>Analytics
+            </a>
+            <div class="mt-auto">
+                <a href="{{ url_for('logout') }}" class="sidebar-link">
+                    <i class="bi bi-box-arrow-right"></i>Logout
+                </a>
             </div>
         {% else %}
-            <div class="nav-links">
-                <a href="{{ url_for('login') }}" class="sidebar-link {{ 'active' if request.endpoint == 'login' }}">
-                    <i class="bi bi-box-arrow-in-right"></i>
-                    <span>Login</span>
-                </a>
-                <a href="{{ url_for('register') }}" class="sidebar-link {{ 'active' if request.endpoint == 'register' }}">
-                    <i class="bi bi-person-plus"></i>
-                    <span>Register</span>
-                </a>
-            </div>
+            <a href="{{ url_for('login') }}" class="sidebar-link {{ 'active' if request.endpoint == 'login' }}">
+                <i class="bi bi-box-arrow-in-right"></i>Login
+            </a>
+            <a href="{{ url_for('register') }}" class="sidebar-link {{ 'active' if request.endpoint == 'register' }}">
+                <i class="bi bi-person-plus"></i>Register
+            </a>
         {% endif %}
     </nav>
 
@@ -222,11 +186,7 @@
             <i class="bi bi-list"></i>
         </button>
         {% if current_user.is_authenticated %}
-            <div class="ms-auto d-flex align-items-center">
-                <span class="text-light opacity-75">
-                    <i class="bi bi-person-circle me-2"></i>{{ current_user.username }}
-                </span>
-            </div>
+            <span class="text-light ms-auto">Welcome, {{ current_user.username }}</span>
         {% endif %}
     </header>
 
@@ -255,16 +215,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Mobile menu toggle functionality
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.querySelector('.sidebar');
-        
-        menuToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('show');
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
         });
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(e) {
             if (window.innerWidth <= 768) {
+                const sidebar = document.querySelector('.sidebar');
+                const menuToggle = document.getElementById('menuToggle');
                 if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
                     sidebar.classList.remove('show');
                 }
