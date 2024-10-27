@@ -27,3 +27,11 @@ class Flipbook(db.Model):
     logo_filename = db.Column(db.String(256))
     custom_css = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    views = db.relationship('PageView', backref='flipbook', lazy=True)
+
+class PageView(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    flipbook_id = db.Column(db.Integer, db.ForeignKey('flipbook.id'), nullable=False)
+    viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    ip_address = db.Column(db.String(45))  # IPv6 compatibility
+    page_number = db.Column(db.Integer)

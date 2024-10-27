@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Analytics Dashboard</h1>
+    
+    {% if not analytics_data %}
+    <div class="alert alert-info">
+        No flipbooks found. <a href="{{ url_for('upload') }}">Create your first flipbook</a> to see analytics.
+    </div>
+    {% endif %}
+    
+    {% for flipbook_id, data in analytics_data.items() %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="card-title h5 mb-0">{{ data.title }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stats-card bg-dark p-3 rounded">
+                        <h3 class="h6 text-muted">Total Views</h3>
+                        <p class="h2">{{ data.total_views }}</p>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <h3 class="h6 text-muted">Views Over Time (Last 7 Days)</h3>
+                    <canvas id="chart_{{ flipbook_id }}" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% for flipbook_id, data in analytics_data.items() %}
+    new Chart(document.getElementById('chart_{{ flipbook_id }}').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: Object.keys({{ data.daily_views | tojson }}),
+            datasets: [{
+                label: 'Daily Views',
+                data: Object.values({{ data.daily_views | tojson }}),
+                borderColor: '#0d6efd',
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+    {% endfor %}
+});
+</script>
+{% endblock %}

@@ -1,12 +1,14 @@
 from app import app, db, login_manager
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
-from models import User, Flipbook
+from models import User, Flipbook, PageView
 from forms import LoginForm, RegisterForm, UploadForm
 from utils import allowed_file, process_pdf, generate_unique_filename
 from werkzeug.utils import secure_filename
+from sqlalchemy import func
 import os
 import logging
+from datetime import datetime, timedelta
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -58,7 +60,6 @@ def register():
         return redirect(url_for('dashboard'))
     form = RegisterForm()
     if form.validate_on_submit():
-        # Check if user already exists
         existing_user = User.query.filter_by(email=form.email.data).first()
         if existing_user:
             flash('Email address already registered', 'error')
@@ -136,7 +137,70 @@ def upload():
 @app.route('/viewer/<unique_id>')
 def viewer(unique_id):
     flipbook = Flipbook.query.filter_by(unique_id=unique_id).first_or_404()
+    
+    # Record page view
+    page_view = PageView(
+        flipbook_id=flipbook.id,
+        ip_address=request.remote_addr
+    )
+    db.session.add(page_view)
+    db.session.commit()
+    
     return render_template('viewer.html', flipbook=flipbook)
+
+@app.route('/analytics')
+@login_required
+def analytics():
+    # Get user's flipbooks
+    user_flipbooks = Flipbook.query.filter_by(user_id=current_user.id).all()
+    
+    analytics_data = {}
+    for flipbook in user_flipbooks:
+        # Total views
+        total_views = PageView.query.filter_by(flipbook_id=flipbook.id).count()
+        
+        # Views over time (last 7 days)
+        seven_days_ago = datetime.utcnow() - timedelta(days=7)
+        daily_views = db.session.query(
+            func.date(PageView.viewed_at).label('date'),
+            func.count(PageView.id).label('count')
+        ).filter(
+            PageView.flipbook_id == flipbook.id,
+            PageView.viewed_at >= seven_days_ago
+        ).group_by(
+            func.date(PageView.viewed_at)
+        ).all()
+        
+        # Format daily views for the chart
+        dates = [(seven_days_ago + timedelta(days=x)).strftime('%Y-%m-%d') for x in range(8)]
+        views_data = {date: 0 for date in dates}
+        for date, count in daily_views:
+            views_data[date.strftime('%Y-%m-%d')] = count
+            
+        analytics_data[flipbook.id] = {
+            'title': flipbook.title,
+            'total_views': total_views,
+            'daily_views': views_data
+        }
+    
+    return render_template('analytics.html', analytics_data=analytics_data)
+
+@app.route('/track_page/<unique_id>', methods=['POST'])
+def track_page(unique_id):
+    flipbook = Flipbook.query.filter_by(unique_id=unique_id).first_or_404()
+    page_number = request.json.get('page_number')
+    
+    if page_number is not None:
+        page_view = PageView.query.filter_by(
+            flipbook_id=flipbook.id,
+            ip_address=request.remote_addr
+        ).order_by(PageView.id.desc()).first()
+        
+        if page_view:
+            page_view.page_number = page_number
+            db.session.commit()
+    
+    return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

@@ -10,6 +10,19 @@ document.addEventListener('DOMContentLoaded', function() {
         acceleration: true
     });
 
+    // Track page changes
+    $(flipbook).bind('turned', function(event, page) {
+        fetch(`/track_page/${window.location.pathname.split('/').pop()}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                page_number: page
+            })
+        });
+    });
+
     document.getElementById('prev').addEventListener('click', function() {
         $(flipbook).turn('previous');
     });

@@ -15,6 +15,7 @@
                 {% if current_user.is_authenticated %}
                     <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
                     <a class="nav-link" href="{{ url_for('upload') }}">Upload</a>
+                    <a class="nav-link" href="{{ url_for('analytics') }}">Analytics</a>
                     <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                 {% else %}
                     <a class="nav-link" href="{{ url_for('login') }}">Login</a>
