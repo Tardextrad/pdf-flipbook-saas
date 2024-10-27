@@ -61,33 +61,20 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         try:
-            # Check for existing username
-            existing_username = User.query.filter_by(username=form.username.data).first()
-            if existing_username:
-                form.username.errors.append('Username already taken')
-                return render_template('register.html', form=form)
-
-            # Check for existing email
-            existing_email = User.query.filter_by(email=form.email.data).first()
-            if existing_email:
-                form.email.errors.append('Email address already registered')
-                return render_template('register.html', form=form)
-
-            # Password validation
-            if len(form.password.data) < 6:
-                form.password.errors.append('Password must be at least 6 characters long')
-                return render_template('register.html', form=form)
-
-            # Create new user
+            username = form.username.data
+            email = form.email.data
+            
+            logger.info(f"Attempting to register new user with username: {username}")
+            
             user = User()
-            user.username = form.username.data
-            user.email = form.email.data
+            user.username = username
+            user.email = email
             user.set_password(form.password.data)
             
             db.session.add(user)
             db.session.commit()
             
-            logger.info(f"New user registered successfully: {user.email}")
+            logger.info(f"New user registered successfully: {email}")
             flash('Registration successful! Please login with your credentials.', 'success')
             return redirect(url_for('login'))
             
@@ -96,7 +83,7 @@ def register():
             logger.error(f"Registration error: {str(e)}")
             flash('An error occurred during registration. Please try again.', 'error')
             return render_template('register.html', form=form)
-            
+    
     return render_template('register.html', form=form)
 
 @app.route('/logout')

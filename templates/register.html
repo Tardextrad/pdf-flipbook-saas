@@ -12,16 +12,24 @@
                         {{ form.username.label(class="form-label") }}
                         {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
                         {% for error in form.username.errors %}
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback d-block">
                                 {{ error }}
                             </div>
                         {% endfor %}
+                        <div class="form-text">
+                            Username requirements:
+                            <ul class="mb-0">
+                                <li>3-64 characters long</li>
+                                <li>Letters and numbers only</li>
+                                <li>Must be unique</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="mb-3">
                         {{ form.email.label(class="form-label") }}
                         {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
                         {% for error in form.email.errors %}
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback d-block">
                                 {{ error }}
                             </div>
                         {% endfor %}
@@ -30,7 +38,7 @@
                         {{ form.password.label(class="form-label") }}
                         {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
                         {% for error in form.password.errors %}
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback d-block">
                                 {{ error }}
                             </div>
                         {% endfor %}
@@ -40,7 +48,7 @@
                         {{ form.password2.label(class="form-label") }}
                         {{ form.password2(class="form-control" + (" is-invalid" if form.password2.errors else "")) }}
                         {% for error in form.password2.errors %}
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback d-block">
                                 {{ error }}
                             </div>
                         {% endfor %}
