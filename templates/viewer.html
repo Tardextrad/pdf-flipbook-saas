@@ -29,6 +29,10 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/turn.min.js') }}"></script>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
 <script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
 {% endblock %}
