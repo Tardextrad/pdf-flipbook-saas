@@ -17,21 +17,6 @@
                         {{ form.pdf_file(class="form-control") }}
                         <div class="form-text">Upload a PDF file to convert into a flipbook.</div>
                     </div>
-                    <div class="mb-3">
-                        {{ form.background_color.label(class="form-label") }}
-                        {{ form.background_color(class="form-control", type="color") }}
-                        <div class="form-text">Choose a background color for your flipbook.</div>
-                    </div>
-                    <div class="mb-3">
-                        {{ form.logo.label(class="form-label") }}
-                        {{ form.logo(class="form-control") }}
-                        <div class="form-text">Upload a logo to display on your flipbook (optional).</div>
-                    </div>
-                    <div class="mb-3">
-                        {{ form.custom_css.label(class="form-label") }}
-                        {{ form.custom_css(class="form-control", rows=5) }}
-                        <div class="form-text">Add custom CSS to style your flipbook (optional).</div>
-                    </div>
                     {{ form.submit(class="btn btn-primary") }}
                 </form>
             </div>

@@ -103,13 +103,6 @@ def upload():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
             
-            logo_filename = None
-            if form.logo.data:
-                logo = form.logo.data
-                logo_filename = generate_unique_filename(secure_filename(logo.filename))
-                logo_path = os.path.join(app.config['UPLOAD_FOLDER'], logo_filename)
-                logo.save(logo_path)
-            
             try:
                 output_dir = os.path.join(app.config['UPLOAD_FOLDER'], filename.rsplit('.', 1)[0])
                 os.makedirs(output_dir, exist_ok=True)
@@ -118,9 +111,6 @@ def upload():
                 flipbook = Flipbook()
                 flipbook.title = form.title.data
                 flipbook.filename = filename
-                flipbook.background_color = form.background_color.data
-                flipbook.logo_filename = logo_filename
-                flipbook.custom_css = form.custom_css.data
                 flipbook.user_id = current_user.id
                 
                 db.session.add(flipbook)

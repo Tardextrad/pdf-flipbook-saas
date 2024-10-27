@@ -1,19 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if flipbook.custom_css %}
-<style>
-{{ flipbook.custom_css | safe }}
-</style>
-{% endif %}
-
-<div class="viewer-container" style="background-color: {{ flipbook.background_color }}">
-    {% if flipbook.logo_filename %}
-    <div class="logo-container mb-3">
-        <img src="{{ url_for('static', filename='uploads/' + flipbook.logo_filename) }}" alt="Logo" class="flipbook-logo">
-    </div>
-    {% endif %}
-
+<div class="viewer-container">
     <!-- Share and Embed Section -->
     <div class="mb-3 text-center">
         <div class="btn-group">
@@ -72,7 +60,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <!-- Primary turn.js source -->
-<script src="https://raw.githubusercontent.com/blasten/turn.js/master/turn.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/blasten/turn.js/turn.min.js"></script>
 
 <!-- Custom viewer script -->
 <script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
