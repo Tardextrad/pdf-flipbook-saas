@@ -77,12 +77,11 @@ def configure_cors(app):
          resources={
              r"/*": {
                  "origins": [
-                     "https://*.replit.app",
-                     "https://*.repl.co",
-                     "http://localhost:3000",
-                     "http://localhost:5000",
-                     "http://localhost:8080",
-                     "http://0.0.0.0:8080"
+                     "https://*.replit.app",  # Replit app domains
+                     "https://*.repl.co",     # Replit co domains
+                     "https://*.repl.dev",    # Replit dev domains
+                     "http://localhost:8080",  # Local development
+                     "http://0.0.0.0:8080"    # Local development alternative
                  ],
                  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                  "allow_headers": ["Content-Type", "Authorization", 
@@ -91,7 +90,7 @@ def configure_cors(app):
                  "expose_headers": ["Content-Range", "X-Content-Range"]
              }
          })
-    logger.info("CORS configured")
+    logger.info("CORS configured for Replit domains")
 
 def init_extensions(app):
     """Initialize Flask extensions."""
